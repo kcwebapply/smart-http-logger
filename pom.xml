@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>jp.spring-boot-reference</groupId>
 	<artifactId>smart-http-logger</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>smart-http-logger</name>
 	<description>Demo project for Spring Boot</description>
 
