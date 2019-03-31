@@ -60,7 +60,7 @@ public class ApiApplication {
 }
 ```
 
-### 3. hide privacy infomation from logs. 
+### 3. mask privacy infomation in logs. 
 
 you can set what header's information you hide by adding setting on `application.properties` like below.
 
