@@ -36,7 +36,7 @@ you can logging automatically http req/res information that come to your applica
 
 ## Usage
 
-- 1. adding dependency on pom
+### 1. adding dependency on pom
 
 ```xml
 <dependency>
@@ -47,7 +47,7 @@ you can logging automatically http req/res information that come to your applica
 
 ```
 
-- 2. scan this package to enable automatically logging.
+### 2. scan this package to enable automatically logging.
 
 ```java
 @SpringBootApplication
@@ -60,7 +60,9 @@ public class ApiApplication {
 }
 ```
 
--3. to hide privacy , you can set what header's information you hide by adding setting on `application.properties` like below.
+### 3. hide privacy infomation from logs. 
+
+you can set what header's information you hide by adding setting on `application.properties` like below.
 
 ```yaml
 smartlog.header.secrets=Authorization,host
