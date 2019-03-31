@@ -16,23 +16,21 @@ https://oss.sonatype.org/content/repositories/releases/jp/spring-boot-reference/
 
 ## introduction
 
-```terminal
-019-03-31 16:40:46.205  INFO 3508 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8888 (http) with context path ''
-2019-03-31 16:40:46.210  INFO 3508 --- [           main] com.example.api.ApiApplication           : Started ApiApplication in 2.37 seconds (JVM running for 7.672)
-2019-03-31 16:40:59.658  INFO 3508 --- [nio-8888-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2019-03-31 16:40:59.658  INFO 3508 --- [nio-8888-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2019-03-31 16:40:59.665  INFO 3508 --- [nio-8888-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 7 ms
-2019-03-31 16:40:59.719  INFO 3508 --- [nio-8888-exec-1] j.s.smarthttplogger.LoggingPrinter       : 
+```javaScript
+
+019-03-31 17:05:47.811  INFO 8706 --- [nio-8888-exec-2] j.s.smarthttplogger.LoggingPrinter       : 
 {
- "url":"GET:/test/100 test=100",
- "requestHeaders":{"host":"localhost:8888","user-agent":"curl/7.54.0","accept":"*/*"},
- "requestBody":null,
- "responseHeaders":{},
- "httpStatus":200,
- "responseBody":100
+ "url":"GET:/user/6",                              // method and request url path.
+ "requestHeaders":{
+   "host":"xxxxxxxxxxxxxxxx","user-agent":"curl/7.54.0",
+   "accept":"application/json"
+ },                                                // requestHeaders/
+ "requestBody":null,                               // request body (when method equals GET, this will be null.)
+ "responseHeaders":{},                             // response headers
+ "httpStatus":200,                                 // httpstatus
+ "responseBody":{"id":"6","name":"kc","score":100} // responsebody
 }
 
-// logging http req/response information
 ```
 
 ## Usage
