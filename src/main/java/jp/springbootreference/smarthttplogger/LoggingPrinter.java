@@ -2,6 +2,7 @@ package jp.springbootreference.smarthttplogger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,21 +12,50 @@ class LoggingPrinter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingPrinter.class);
 
+    /*private static final String LoggingFormat =
+            "\n" + "{\n" +
+                    "  \"REQUEST\":{\n"+
+                    "    \"METHOD:\":\"%s\",\n" +
+                    "    \"URL\":\"%s\",\n" +
+                    "    \"HEADERS\":%s,\n" +
+                    "    \"BODY\":%s\n" +
+                    "  },"+
+                    "\n\n"+
+                    "  \"RESPONSE\":{\n"+
+                    "    \"HEADERS\":%s,\n" +
+                    "    \"STATUS\":%d,\n" +
+                    "    \"BODY\":%s\n" +
+                    "  }\n" +
+                    "}";*/
+
     private static final String LoggingFormat =
             "\n" + "{\n" +
-                    " \"url\":\"%s\",\n" +
-                    " \"requestHeaders\":%s,\n" +
-                    " \"requestBody\":%s,\n" +
-                    " \"responseHeaders\":%s,\n" +
-                    " \"httpStatus\":%d,\n" +
-                    " \"responseBody\":%s\n" +
+                    "  \"REQUEST\":{\n"+
+                    "    \"METHOD:\":\"%s\",\n" +
+                    "    \"URL\":\"%s\",\n" +
+                    "    \"HEADERS\":%s,\n" +
+                    "    \"BODY\":%s\n" +
+                    "  },"+
+                    "\n\n"+
+                    "  \"RESPONSE\":{\n"+
+                    "    \"HEADERS\":%s,\n" +
+                    "    \"STATUS\":%d,\n" +
+                    "    \"BODY\":%s\n" +
+                    "  }\n" +
                     "}";
+
 
     private static final String secretExpression = "xxxxxxxxxxxxxxxx";
 
+
+
+
     static void logging(LogCache logCache,List<String> secretHeaders){
+
+        final int status = logCache.getResponseStatus();
         final String LOGGING_FORMAT = String.format(
                 LoggingFormat,
+                logCache.getMethod(),
                 logCache.getRequestUrl(),
                 getHeadersString(logCache.getRequestHeaders(), secretHeaders),
                 logCache.getRequestBody(),
@@ -34,7 +64,12 @@ class LoggingPrinter {
                 logCache.getResponseBody()
         );
 
-        LOGGER.info(LOGGING_FORMAT);
+        if(status == HttpStatus.OK.value()){
+            LOGGER.info(LOGGING_FORMAT);
+        }else{
+            LOGGER.error(LOGGING_FORMAT);
+        }
+
 
     }
 
@@ -43,7 +78,7 @@ class LoggingPrinter {
         List<String> HeaderSets = new ArrayList<>();
         headers.forEach((key,value)->{
             value = !secretHeaders.contains(key)?value:secretExpression;
-            HeaderSets.add("\""+key + "\":\""+value+"\"\n");
+            HeaderSets.add("\""+key + "\":\""+value+"\"");
         });
         buffer.append(String.join(",",HeaderSets));
         buffer.append("}");
