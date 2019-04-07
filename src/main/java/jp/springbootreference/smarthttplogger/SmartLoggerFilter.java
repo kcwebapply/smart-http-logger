@@ -72,11 +72,12 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
     }
 
     private static void logRequestHeader(LogCache logCache, ContentCachingRequestWrapper request) {
+        logCache.setMethod(request.getMethod());
         String queryString = request.getQueryString();
         if (queryString == null) {
-            logCache.setRequestURl(request.getMethod() + ":"+request.getRequestURI());
+            logCache.setRequestURl(request.getRequestURI());
         } else {
-            logCache.setRequestURl(request.getMethod() + ":"+request.getRequestURI()+ " "+queryString);
+            logCache.setRequestURl(request.getRequestURI()+ "?"+queryString);
         }
         Collections.list(request.getHeaderNames()).forEach(headerName ->
                 Collections.list(request.getHeaders(headerName)).forEach(headerValue ->{

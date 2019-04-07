@@ -8,6 +8,8 @@ import java.util.HashMap;
 @Data
 class LogCache implements Serializable {
 
+    private String method;
+
     private String requestUrl;
 
     private String requestBody;
@@ -19,6 +21,8 @@ class LogCache implements Serializable {
     private HashMap<String,String> responseHeaders = new HashMap<>();
 
     private int responseStatus;
+
+    void setMethod(String method){this.method = method;}
 
     void setRequestURl(String requestUrl){
         this.requestUrl = requestUrl;
