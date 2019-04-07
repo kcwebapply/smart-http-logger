@@ -29,20 +29,8 @@ class LoggingPrinter {
                     "}";*/
 
     private static final String LoggingFormat =
-            "\n" + "{\n" +
-                    "  \"REQUEST\":{\n"+
-                    "    \"METHOD:\":\"%s\",\n" +
-                    "    \"URL\":\"%s\",\n" +
-                    "    \"HEADERS\":%s,\n" +
-                    "    \"BODY\":%s\n" +
-                    "  },"+
-                    "\n\n"+
-                    "  \"RESPONSE\":{\n"+
-                    "    \"HEADERS\":%s,\n" +
-                    "    \"STATUS\":%d,\n" +
-                    "    \"BODY\":%s\n" +
-                    "  }\n" +
-                    "}";
+                    "[ \"%s \"%s\" %d\n" +
+                    " %s %s,\n %s, %s\"]";
 
 
     private static final String secretExpression = "xxxxxxxxxxxxxxxx";
@@ -57,10 +45,10 @@ class LoggingPrinter {
                 LoggingFormat,
                 logCache.getMethod(),
                 logCache.getRequestUrl(),
+                logCache.getResponseStatus(),
                 getHeadersString(logCache.getRequestHeaders(), secretHeaders),
                 logCache.getRequestBody(),
                 getHeadersString(logCache.getResponseHeaders(), secretHeaders),
-                logCache.getResponseStatus(),
                 logCache.getResponseBody()
         );
 
