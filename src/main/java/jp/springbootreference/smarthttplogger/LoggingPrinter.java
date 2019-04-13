@@ -29,7 +29,7 @@ class LoggingPrinter {
                     "}";*/
 
     private static final String LoggingFormat =
-                    "[ \"%s \"%s\" %d\n" +
+                    "[ \"%s \"%s\" %d \n" +
                     " %s %s,\n %s, %s\"]";
 
 
@@ -38,7 +38,7 @@ class LoggingPrinter {
 
 
 
-    static void logging(LogCache logCache,List<String> secretHeaders){
+    static void logging(LogCacheObject logCache, List<String> secretHeaders){
 
         final int status = logCache.getResponseStatus();
         final String LOGGING_FORMAT = String.format(

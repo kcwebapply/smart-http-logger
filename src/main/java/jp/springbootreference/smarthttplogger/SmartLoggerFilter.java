@@ -26,6 +26,7 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
     @Value("#{'${smartlog.header.secrets:null}'.split(',')}")
     private List<String> secretHeaders;
 
+
     private static final List<MediaType> VISIBLE_TYPES = Arrays.asList(
             MediaType.valueOf("text/*"),
             MediaType.APPLICATION_FORM_URLENCODED,
@@ -46,7 +47,7 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
     }
 
     protected void doFilterWrapped(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response, FilterChain filterChain) throws ServletException, IOException {
-        LogCache cache = new LogCache();
+        LogCacheObject cache = new LogCacheObject();
         try {
             beforeRequest(cache,request, response);
             filterChain.doFilter(request, response);
@@ -58,20 +59,20 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
         }
     }
 
-    protected void beforeRequest(LogCache logCache, ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
+    protected void beforeRequest(LogCacheObject logCache, ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
         if (log.isInfoEnabled()) {
             logRequestHeader(logCache, request);
         }
     }
 
-    protected void afterRequest(LogCache logCache, ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
+    protected void afterRequest(LogCacheObject logCache, ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
         if (log.isInfoEnabled()) {
             logRequestBody(logCache, request);
             logResponse(logCache, response);
         }
     }
 
-    private static void logRequestHeader(LogCache logCache, ContentCachingRequestWrapper request) {
+    private static void logRequestHeader(LogCacheObject logCache, ContentCachingRequestWrapper request) {
         logCache.setMethod(request.getMethod());
         String queryString = request.getQueryString();
         if (queryString == null) {
@@ -86,7 +87,7 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
         );
     }
 
-    private static void logRequestBody(LogCache logCache, ContentCachingRequestWrapper request) {
+    private static void logRequestBody(LogCacheObject logCache, ContentCachingRequestWrapper request) {
         byte[] content = request.getContentAsByteArray();
         if (content.length > 0) {
             MediaType mediaType = MediaType.valueOf(request.getContentType());
@@ -102,7 +103,8 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
         }
     }
 
-    private static void logResponse(LogCache logCache, ContentCachingResponseWrapper response) {
+    private static void logResponse(LogCacheObject logCache, ContentCachingResponseWrapper response) {
+        logCache.setResponseStatus(response.getStatus());
         response.getHeaderNames().forEach(headerName ->
                 response.getHeaders(headerName).forEach(headerValue -> {
                             logCache.setResponseHeader(headerName,headerValue);
@@ -116,7 +118,6 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
             if (visible) {
                 try {
                     String contentString = new String(content, response.getCharacterEncoding());
-                    logCache.setResponseStatus(response.getStatus());
                     logCache.setResponseBody(contentString);
                 } catch (UnsupportedEncodingException e) {
                 }

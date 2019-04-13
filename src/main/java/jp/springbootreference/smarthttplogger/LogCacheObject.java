@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 @Getter
-class LogCache implements Serializable {
+class LogCacheObject implements Serializable {
 
     private String method;
 
