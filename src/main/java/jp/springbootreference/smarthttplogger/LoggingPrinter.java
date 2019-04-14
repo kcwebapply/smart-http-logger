@@ -2,8 +2,8 @@ package jp.springbootreference.smarthttplogger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,8 +11,7 @@ import java.util.List;
 class LoggingPrinter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingPrinter.class);
-
-    /*private static final String LoggingFormat =
+   /* private static final String LoggingFormat =
             "\n" + "{\n" +
                     "  \"REQUEST\":{\n"+
                     "    \"METHOD:\":\"%s\",\n" +
@@ -22,8 +21,8 @@ class LoggingPrinter {
                     "  },"+
                     "\n\n"+
                     "  \"RESPONSE\":{\n"+
-                    "    \"HEADERS\":%s,\n" +
                     "    \"STATUS\":%d,\n" +
+                    "    \"HEADERS\":%s,\n" +
                     "    \"BODY\":%s\n" +
                     "  }\n" +
                     "}";*/
@@ -38,28 +37,32 @@ class LoggingPrinter {
 
 
 
-    static void logging(LogCacheObject logCache, List<String> secretHeaders){
+    static void logging(HttpObject httpObject, HashMap<String,Boolean> outputConfiguration, List<String> secretHeaders){
 
-        final int status = logCache.getResponseStatus();
-        final String LOGGING_FORMAT = String.format(
-                LoggingFormat,
-                logCache.getMethod(),
-                logCache.getRequestUrl(),
-                logCache.getResponseStatus(),
-                getHeadersString(logCache.getRequestHeaders(), secretHeaders),
-                logCache.getRequestBody(),
-                getHeadersString(logCache.getResponseHeaders(), secretHeaders),
-                logCache.getResponseBody()
-        );
 
-        if(status == HttpStatus.OK.value()){
-            LOGGER.info(LOGGING_FORMAT);
-        }else{
-            LOGGER.error(LOGGING_FORMAT);
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ ");
+        for (Field field : httpObject.getClass().getDeclaredFields()) {
+            try {
+                field.setAccessible(true);
+                final String fieldName = field.getName();
+                if(outputConfiguration.get(fieldName)==true){
+                    sb.append( fieldName+ " = " + field.get(httpObject) + "\n");
+                }
+            } catch (IllegalAccessException e) {
+                sb.append(field.getName() + " = " + "access denied\n");
+            }
         }
+        sb.append(" ]");
+
+        final int status = httpObject.getStatus();
+
+
+        LOGGER.info(sb.toString());
 
 
     }
+
 
     private  static String getHeadersString(HashMap<String,String> headers, List<String> secretHeaders){
         final StringBuffer buffer = new StringBuffer("{");

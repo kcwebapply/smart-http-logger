@@ -1,8 +1,9 @@
 package jp.springbootreference.smarthttplogger;
 
 
+import jp.springbootreference.smarthttplogger.config.SmartLoggerHeaderSecretsConfiguration;
+import jp.springbootreference.smarthttplogger.config.SmartLoggerOutputConfiguration;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,14 +18,22 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
 @Component
 public class SmartLoggerFilter extends OncePerRequestFilter {
 
-    @Value("#{'${smartlog.header.secrets:null}'.split(',')}")
     private List<String> secretHeaders;
+
+    private HashMap<String,Boolean> outputConfig;
+
+
+    public SmartLoggerFilter(SmartLoggerOutputConfiguration outputConfiguration, SmartLoggerHeaderSecretsConfiguration secretsConfiguration){
+        secretHeaders = secretsConfiguration.getSecrets();
+        this.outputConfig = outputConfiguration.toMap();
+    }
 
 
     private static final List<MediaType> VISIBLE_TYPES = Arrays.asList(
@@ -47,7 +56,7 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
     }
 
     protected void doFilterWrapped(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response, FilterChain filterChain) throws ServletException, IOException {
-        LogCacheObject cache = new LogCacheObject();
+        HttpObject cache = new HttpObject();
         try {
             beforeRequest(cache,request, response);
             filterChain.doFilter(request, response);
@@ -55,39 +64,40 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
         finally {
             afterRequest(cache, request, response);
             response.copyBodyToResponse();
-            LoggingPrinter.logging(cache, secretHeaders);
+            LoggingPrinter.logging(cache,outputConfig,secretHeaders);
         }
     }
 
-    protected void beforeRequest(LogCacheObject logCache, ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
+    protected void beforeRequest(HttpObject httpObject, ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
         if (log.isInfoEnabled()) {
-            logRequestHeader(logCache, request);
+            logRequestHeader(httpObject, request);
         }
     }
 
-    protected void afterRequest(LogCacheObject logCache, ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
+    protected void afterRequest(HttpObject httpObject, ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
         if (log.isInfoEnabled()) {
-            logRequestBody(logCache, request);
-            logResponse(logCache, response);
+            logRequestBody(httpObject, request);
+            logResponse(httpObject, response);
         }
     }
 
-    private static void logRequestHeader(LogCacheObject logCache, ContentCachingRequestWrapper request) {
-        logCache.setMethod(request.getMethod());
+    private static void logRequestHeader(HttpObject httpObject, ContentCachingRequestWrapper request) {
+        httpObject.setMethod(request.getMethod());
+
         String queryString = request.getQueryString();
         if (queryString == null) {
-            logCache.setRequestURl(request.getRequestURI());
+            httpObject.setURl(request.getRequestURI());
         } else {
-            logCache.setRequestURl(request.getRequestURI()+ "?"+queryString);
+            httpObject.setURl(request.getRequestURI()+ "?"+queryString);
         }
         Collections.list(request.getHeaderNames()).forEach(headerName ->
                 Collections.list(request.getHeaders(headerName)).forEach(headerValue ->{
-                            logCache.setRequestHeader(headerName,headerValue);
+                            httpObject.setRequestHeader(headerName,headerValue);
                 })
         );
     }
 
-    private static void logRequestBody(LogCacheObject logCache, ContentCachingRequestWrapper request) {
+    private static void logRequestBody(HttpObject httpObject, ContentCachingRequestWrapper request) {
         byte[] content = request.getContentAsByteArray();
         if (content.length > 0) {
             MediaType mediaType = MediaType.valueOf(request.getContentType());
@@ -95,7 +105,7 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
             if (visible) {
                 try {
                     String contentString = new String(content, request.getCharacterEncoding());
-                    logCache.setRequestBody(contentString);
+                    httpObject.setRequest(contentString);
                 } catch (UnsupportedEncodingException e) {
                 }
             } else {
@@ -103,11 +113,11 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
         }
     }
 
-    private static void logResponse(LogCacheObject logCache, ContentCachingResponseWrapper response) {
-        logCache.setResponseStatus(response.getStatus());
+    private static void logResponse(HttpObject httpObject, ContentCachingResponseWrapper response) {
+        httpObject.setStatus(response.getStatus());
         response.getHeaderNames().forEach(headerName ->
                 response.getHeaders(headerName).forEach(headerValue -> {
-                            logCache.setResponseHeader(headerName,headerValue);
+                            httpObject.setResponseHeader(headerName,headerValue);
                         })
         );
 
@@ -118,14 +128,12 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
             if (visible) {
                 try {
                     String contentString = new String(content, response.getCharacterEncoding());
-                    logCache.setResponseBody(contentString);
+                    httpObject.setResponse(contentString);
                 } catch (UnsupportedEncodingException e) {
                 }
             }
         }
     }
-
-
 
     private static ContentCachingRequestWrapper wrapRequest(HttpServletRequest request) {
         if (request instanceof ContentCachingRequestWrapper) {

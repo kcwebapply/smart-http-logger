@@ -26,10 +26,10 @@ you can logging automatically http req/res information that come to your applica
    "host":"xxxxxxxxxxxxxxxx","user-agent":"curl/7.54.0",
    "accept":"application/json"
  },                                                // requestHeaders/
- "requestBody":null,                               // request body (when method equals GET, this will be null.)
+ "request":null,                               // request body (when method equals GET, this will be null.)
  "responseHeaders":{},                             // response headers
  "httpStatus":200,                                 // httpstatus
- "responseBody":{"id":"6","name":"kc","score":100} // responsebody
+ "response":{"id":"6","name":"kc","score":100} // responsebody
 }
 
 ```
