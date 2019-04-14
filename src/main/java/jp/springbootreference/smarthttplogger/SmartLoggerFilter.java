@@ -48,56 +48,56 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // if async , not working.
         if (isAsyncDispatch(request)) {
             filterChain.doFilter(request, response);
-        } else {
-            doFilterWrapped(wrapRequest(request), wrapResponse(response), filterChain);
+            return;
         }
-    }
 
-    protected void doFilterWrapped(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response, FilterChain filterChain) throws ServletException, IOException {
-        HttpObject cache = new HttpObject();
+        ContentCachingRequestWrapper requestWrapper = wrapRequest(request);
+        ContentCachingResponseWrapper responseWrapper = wrapResponse(response);
+        HttpObject httpInternalCache = new HttpObject();
+
+        long start = System.currentTimeMillis();
+
         try {
-            beforeRequest(cache,request, response);
-            filterChain.doFilter(request, response);
+            setMethod(httpInternalCache,requestWrapper);
+            setRequestHeader(httpInternalCache,requestWrapper);
+            filterChain.doFilter(requestWrapper, responseWrapper);
         }
         finally {
-            afterRequest(cache, request, response);
-            response.copyBodyToResponse();
-            LoggingPrinter.logging(cache,outputConfig,secretHeaders);
+            long time  = System.currentTimeMillis() - start;
+            setRequestBody(httpInternalCache, requestWrapper);
+            setResponseStatus(httpInternalCache,responseWrapper);
+            setResponseHeader(httpInternalCache,responseWrapper);
+            setResponseBody(httpInternalCache,responseWrapper);
+            responseWrapper.copyBodyToResponse();
+            LoggingPrinter.logging(httpInternalCache,outputConfig,secretHeaders,time);
         }
+
+
     }
 
-    protected void beforeRequest(HttpObject httpObject, ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
-        if (log.isInfoEnabled()) {
-            logRequestHeader(httpObject, request);
-        }
-    }
 
-    protected void afterRequest(HttpObject httpObject, ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
-        if (log.isInfoEnabled()) {
-            logRequestBody(httpObject, request);
-            logResponse(httpObject, response);
-        }
-    }
-
-    private static void logRequestHeader(HttpObject httpObject, ContentCachingRequestWrapper request) {
+    protected static void setMethod(HttpObject httpObject, ContentCachingRequestWrapper request){
         httpObject.setMethod(request.getMethod());
+    }
 
+    protected static void setRequestHeader(HttpObject httpObject, ContentCachingRequestWrapper request) {
         String queryString = request.getQueryString();
         if (queryString == null) {
             httpObject.setURl(request.getRequestURI());
         } else {
             httpObject.setURl(request.getRequestURI()+ "?"+queryString);
         }
-        Collections.list(request.getHeaderNames()).forEach(headerName ->
-                Collections.list(request.getHeaders(headerName)).forEach(headerValue ->{
-                            httpObject.setRequestHeader(headerName,headerValue);
-                })
+        final HashMap<String,String> header = new HashMap<>();
+        Collections.list(request.getHeaderNames()).stream().forEach(headerName ->
+            header.put(headerName,request.getHeader(headerName))
         );
+
     }
 
-    private static void logRequestBody(HttpObject httpObject, ContentCachingRequestWrapper request) {
+    private static void setRequestBody(HttpObject httpObject, ContentCachingRequestWrapper request) {
         byte[] content = request.getContentAsByteArray();
         if (content.length > 0) {
             MediaType mediaType = MediaType.valueOf(request.getContentType());
@@ -108,19 +108,22 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
                     httpObject.setRequest(contentString);
                 } catch (UnsupportedEncodingException e) {
                 }
-            } else {
             }
         }
     }
 
-    private static void logResponse(HttpObject httpObject, ContentCachingResponseWrapper response) {
+    private static void setResponseStatus(HttpObject httpObject, ContentCachingResponseWrapper response){
         httpObject.setStatus(response.getStatus());
-        response.getHeaderNames().forEach(headerName ->
-                response.getHeaders(headerName).forEach(headerValue -> {
-                            httpObject.setResponseHeader(headerName,headerValue);
-                        })
-        );
+    }
 
+    private static void setResponseHeader(HttpObject httpObject, ContentCachingResponseWrapper response){
+        final HashMap<String,String> header = new HashMap<>();
+        response.getHeaderNames().forEach(headerName ->
+               header.put(headerName,response.getHeader(headerName))
+        );
+    }
+
+    private static void setResponseBody(HttpObject httpObject, ContentCachingResponseWrapper response) {
         byte[] content = response.getContentAsByteArray();
         if (content.length > 0) {
             MediaType mediaType = MediaType.valueOf(response.getContentType());
@@ -134,6 +137,7 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
             }
         }
     }
+
 
     private static ContentCachingRequestWrapper wrapRequest(HttpServletRequest request) {
         if (request instanceof ContentCachingRequestWrapper) {

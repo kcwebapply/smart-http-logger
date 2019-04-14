@@ -3,10 +3,11 @@ package jp.springbootreference.smarthttplogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class LoggingPrinter {
 
@@ -37,22 +38,37 @@ class LoggingPrinter {
 
 
 
-    static void logging(HttpObject httpObject, HashMap<String,Boolean> outputConfiguration, List<String> secretHeaders){
+    static void logging(HttpObject httpObject, HashMap<String,Boolean> outputConfiguration, List<String> secretHeaders,long time){
 
 
         StringBuilder sb = new StringBuilder();
         sb.append("[ ");
-        for (Field field : httpObject.getClass().getDeclaredFields()) {
+        /*for (Field field : httpObject.getClass().getDeclaredFields()) {
             try {
                 field.setAccessible(true);
                 final String fieldName = field.getName();
                 if(outputConfiguration.get(fieldName)==true){
-                    sb.append( fieldName+ " = " + field.get(httpObject) + "\n");
+                    sb.append("\""+fieldName+ "\" = \"" + field.get(httpObject) + "\", ");
                 }
             } catch (IllegalAccessException e) {
                 sb.append(field.getName() + " = " + "access denied\n");
             }
-        }
+        }*/
+
+        final List<String> outputParameters = Arrays.stream(httpObject.getClass().getDeclaredFields())
+                .filter(field -> {
+                    field.setAccessible(true);
+                    return outputConfiguration.get(field.getName());
+                }).map(field -> {
+            try {
+                return field.get(httpObject) + "";//"\""+field.getName()+"\":\""+field.get(httpObject)+"\" ";
+            } catch (IllegalAccessException e) {
+                return null;
+            }
+        }).collect(Collectors.toList());
+        outputParameters.add(String.valueOf(time));
+        final String expression = String.join(" ",outputParameters);
+        sb.append(expression);
         sb.append(" ]");
 
         final int status = httpObject.getStatus();
