@@ -1,8 +1,8 @@
-package jp.springbootreference.smarthttplogger;
+package jp.springbootreference.smarthttplogger.filter;
 
 
-import jp.springbootreference.smarthttplogger.config.SmartLoggerHeaderSecretsConfiguration;
-import jp.springbootreference.smarthttplogger.config.SmartLoggerOutputConfiguration;
+import jp.springbootreference.smarthttplogger.HttpObject;
+import jp.springbootreference.smarthttplogger.handler.SmartHttpHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -23,19 +23,15 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class SmartLoggerFilter extends OncePerRequestFilter {
-
-    private List<String> secretHeaders;
-
-    private HashMap<String,Boolean> outputConfig;
+public class SmartHttpFilter extends OncePerRequestFilter {
 
 
-    public SmartLoggerFilter(SmartLoggerOutputConfiguration outputConfiguration, SmartLoggerHeaderSecretsConfiguration secretsConfiguration){
-        secretHeaders = secretsConfiguration.getSecrets();
-        this.outputConfig = outputConfiguration.toMap();
+    private final SmartHttpHandler smartHttpHandler;
+
+    public SmartHttpFilter(SmartHttpHandler smartHttpHandler){
+        this.smartHttpHandler = smartHttpHandler;
     }
-
-
+    /**/
     private static final List<MediaType> VISIBLE_TYPES = Arrays.asList(
             MediaType.valueOf("text/*"),
             MediaType.APPLICATION_FORM_URLENCODED,
@@ -72,7 +68,7 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
             setResponseHeader(httpInternalCache,responseWrapper);
             setResponseBody(httpInternalCache,responseWrapper);
             responseWrapper.copyBodyToResponse();
-            LoggingPrinter.logging(httpInternalCache,outputConfig,secretHeaders,time);
+            smartHttpHandler.handle(httpInternalCache,time);
         }
 
 
@@ -86,14 +82,15 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
     protected static void setRequestHeader(HttpObject httpObject, ContentCachingRequestWrapper request) {
         String queryString = request.getQueryString();
         if (queryString == null) {
-            httpObject.setURl(request.getRequestURI());
+            httpObject.setUrl(request.getRequestURI());
         } else {
-            httpObject.setURl(request.getRequestURI()+ "?"+queryString);
+            httpObject.setUrl(request.getRequestURI()+ "?"+queryString);
         }
         final HashMap<String,String> header = new HashMap<>();
         Collections.list(request.getHeaderNames()).stream().forEach(headerName ->
             header.put(headerName,request.getHeader(headerName))
         );
+        httpObject.setRequestHeaders(header);
 
     }
 
@@ -121,6 +118,7 @@ public class SmartLoggerFilter extends OncePerRequestFilter {
         response.getHeaderNames().forEach(headerName ->
                header.put(headerName,response.getHeader(headerName))
         );
+        httpObject.setResponseHeaders(header);
     }
 
     private static void setResponseBody(HttpObject httpObject, ContentCachingResponseWrapper response) {
