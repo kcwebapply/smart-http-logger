@@ -1,51 +1,54 @@
 package jp.springbootreference.smarthttplogger;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.HashMap;
 
-@Data
-class LogCache implements Serializable {
+@Getter
+@Setter
+class HttpObject implements Serializable {
 
     private String method;
 
-    private String requestUrl;
-
-    private String requestBody;
+    private String url;
 
     private HashMap<String,String> requestHeaders = new HashMap<>();
 
-    private String responseBody;
+    private String request;
+
+    private int status;
 
     private HashMap<String,String> responseHeaders = new HashMap<>();
 
-    private int responseStatus;
+    private String response;
+
 
     void setMethod(String method){this.method = method;}
 
-    void setRequestURl(String requestUrl){
-        this.requestUrl = requestUrl;
+    void setURl(String url){
+        this.url = url;
     }
 
     void setRequestHeader(String key,String value){
         this.requestHeaders.put(key,value);
     }
 
-    void setRequestBody(String requestBody){
-        this.requestBody = requestBody;
+    void setRequest(String request){
+        this.request = request;
     }
 
     void setResponseHeader(String key,String value){
         this.requestHeaders.put(key,value);
     }
 
-    void setResponseBody(String responseBody){
-        this.responseBody = responseBody;
+    void setResponse(String response){
+        this.response = response;
     }
 
-    void setResponseStatus(int responseStatus){
-        this.responseStatus = responseStatus;
+    void setStatus(int status){
+        this.status = status;
     }
 
 }
