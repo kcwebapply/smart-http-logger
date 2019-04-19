@@ -16,8 +16,8 @@ you can logging automatically http req/res information that come to your applica
 
 ```javaScript
 
-2019-04-19 20:20:00.428 ERROR 62593 --- [nio-8888-exec-2] j.s.s.logging.SmartHttpLogger            : [ 'method' = 'GET', 'url' = '/user/100', 'request' = 'null', 'status' = '401', 'response' = '{"status":401,"message":"authorization exception"}', 'time' = '82ms' ]
-2019-04-19 20:20:02.673  INFO 62593 --- [nio-8888-exec-3] j.s.s.logging.SmartHttpLogger            : [ 'method' = 'POST', 'url' = '/user', 'request' = '{"id":"1000","name":"kc","score":100}', 'status' = '200', 'response' = '{"id":"1000","name":"kc","score":100}', 'time' = '35ms' ]
+2019-04-19 20:20:00 ERROR 62593 --- [nio-8888-exec-2] j.s.s.logging.SmartHttpLogger            : [ 'method' = 'GET', 'url' = '/user/100', 'request' = 'null', 'status' = '401', 'response' = '{"status":401,"message":"authorization exception"}', 'time' = '82ms' ]
+2019-04-19 20:20:02  INFO 62593 --- [nio-8888-exec-3] j.s.s.logging.SmartHttpLogger            : [ 'method' = 'POST', 'url' = '/user', 'request' = '{"id":"1000","name":"kc","score":100}', 'status' = '200', 'response' = '{"id":"1000","name":"kc","score":100}', 'time' = '35ms' ]
 
 ```
 
@@ -59,7 +59,7 @@ smarthlog.output.status=false
 Then, output become 
 
 ```javaScript
-2019-04-19 20:20:00.428 ERROR 62593 --- [nio-8888-exec-2] j.s.s.logging.SmartHttpLogger            : ['url' = '/user/100', 'request' = 'null', 'response' = '{"status":401,"message":"authorization exception"}', 'time' = '82ms' ]
+2019-04-19 20:20:00 ERROR 62593 --- [nio-8888-exec-2] j.s.s.logging.SmartHttpLogger            : ['url' = '/user/100', 'request' = 'null', 'response' = '{"status":401,"message":"authorization exception"}', 'time' = '82ms' ]
 ```
 
 ###### you can mask header information.
