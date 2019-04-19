@@ -10,27 +10,14 @@
 
 
 
-
-
 ## introduction
 
 you can logging automatically http req/res information that come to your application's api.
 
-
 ```javaScript
 
-019-03-31 17:05:47.811  INFO 8706 --- [nio-8888-exec-2] j.s.smarthttplogger.LoggingPrinter       : 
-{
- "url":"GET:/user/6",                              // method and request url path.
- "requestHeaders":{
-   "host":"xxxxxxxxxxxxxxxx","user-agent":"curl/7.54.0",
-   "accept":"application/json"
- },                                                // requestHeaders/
- "request":null,                               // request body (when method equals GET, this will be null.)
- "responseHeaders":{},                             // response headers
- "httpStatus":200,                                 // httpstatus
- "response":{"id":"6","name":"kc","score":100} // responsebody
-}
+2019-04-19 20:20:00.428 ERROR 62593 --- [nio-8888-exec-2] j.s.s.logging.SmartHttpLogger            : [ 'method' = 'GET', 'url' = '/user/100', 'request' = 'null', 'status' = '401', 'response' = '{"status":401,"message":"authorization exception"}', 'time' = '82ms' ]
+2019-04-19 20:20:02.673  INFO 62593 --- [nio-8888-exec-3] j.s.s.logging.SmartHttpLogger            : [ 'method' = 'POST', 'url' = '/user', 'request' = '{"id":"1000","name":"kc","score":100}', 'status' = '200', 'response' = '{"id":"1000","name":"kc","score":100}', 'time' = '35ms' ]
 
 ```
 
@@ -60,9 +47,25 @@ public class ApiApplication {
 }
 ```
 
-### 3. mask privacy infomation in logs. 
+### 3. modify log output as you like. 
 
-you can set what header's information you hide by adding setting on `application.properties` like below.
+###### you can hide some http information by setting.
+
+```yaml
+smarthlog.output.method=false 
+smarthlog.output.status=false
+```
+
+Then, output become 
+
+```javaScript
+2019-04-19 20:20:00.428 ERROR 62593 --- [nio-8888-exec-2] j.s.s.logging.SmartHttpLogger            : ['url' = '/user/100', 'request' = 'null', 'response' = '{"status":401,"message":"authorization exception"}', 'time' = '82ms' ]
+```
+
+###### you can mask header information.
+
+you can hide header information by adding setting on `application.properties` like below.
+
 
 ```yaml
 smartlog.header.secrets=Authorization,host
