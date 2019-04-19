@@ -51,7 +51,7 @@ public class ApiApplication {
 
 ###### you can hide some http information by setting.
 
-```
+```yaml
 smarthlog.output.method=false 
 smarthlog.output.status=false
 ```
