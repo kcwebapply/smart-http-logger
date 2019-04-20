@@ -34,20 +34,7 @@ you can logging automatically http req/res information that come to your applica
 
 ```
 
-### 2. scan this package to enable automatically logging.
-
-```java
-@SpringBootApplication
-@ComponentScan(basePackages = {"com.example.api","jp.springbootreference.smarthttplogger"}) // here.
-public class ApiApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(ApiApplication.class, args);
-	}
-
-}
-```
-
-### 3. modify log output as you like. 
+### 2. modify log output as you like. 
 
 ###### you can hide some http information by setting.
 
