@@ -4,13 +4,11 @@ import jp.springbootreference.smarthttplogger.HttpObject;
 import jp.springbootreference.smarthttplogger.config.SmartLoggerHeaderSecretsConfiguration;
 import jp.springbootreference.smarthttplogger.config.SmartLoggerOutputConfiguration;
 import jp.springbootreference.smarthttplogger.logging.SmartHttpLogger;
-import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 
 
-@Service
 public class SmartHttpHandler {
 
     private final List<String> secretHeaders;
