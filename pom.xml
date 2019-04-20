@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>jp.spring-boot-reference</groupId>
 	<artifactId>smart-http-logger</artifactId>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<name>smart-http-logger</name>
     <url>https://github.com/kcwebapply/smart-http-logger</url>
 	<description>auto http logger for spring-boot</description>

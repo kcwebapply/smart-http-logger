@@ -5,7 +5,6 @@ import jp.springbootreference.smarthttplogger.HttpObject;
 import jp.springbootreference.smarthttplogger.handler.SmartHttpHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
@@ -22,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
-@Component
 public class SmartHttpFilter extends OncePerRequestFilter {
 
 
