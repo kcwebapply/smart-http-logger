@@ -1,4 +1,4 @@
-SmartHttpLogger - (auto http logger for `SpringBoot`)
+SmartHttpLogger
 ----
 
 ![apache licensed](https://img.shields.io/badge/License-Apache_2.0-d94c32.svg)
@@ -6,6 +6,7 @@ SmartHttpLogger - (auto http logger for `SpringBoot`)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/jp.spring-boot-reference/smart-http-logger/badge.svg)](https://maven-badges.herokuapp.com/maven-central/jp.spring-boot-reference/smart-http-logger)
 
 
+Auto http logger for `SpringBoot` .
 
 ## introduction
 
