@@ -1,8 +1,5 @@
-<img src="https://i.imgur.com/Uh6137h.png" width="400"/>
-
+SmartHttpLogger - (auto http logger for `SpringBoot`)
 ----
-
-`smart http logger` is auto http-logger for `SpringBoot` project.
 
 ![apache licensed](https://img.shields.io/badge/License-Apache_2.0-d94c32.svg)
 ![Java](https://img.shields.io/badge/Language-Java-f88909.svg)
@@ -13,6 +10,8 @@
 ## introduction
 
 you can logging automatically http req/res information that come to your application's api.
+
+<img src="https://i.imgur.com/zdE1WT9.png" width="800"/>
 
 ```javaScript
 
